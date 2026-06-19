@@ -213,7 +213,7 @@
     <div class="verdict">
       <div class="lead" id="verdictLead"></div>
       <div class="sell-num"><span id="sellShares" class="mono">24</span><span class="u" data-i18n="unit"></span></div>
-      <div class="frac">≈ <b id="fracWord"></b> <span id="fracPct" style="color:var(--muted)"></span> <span data-i18n="fracSuf"></span></div>
+      <div class="frac"><span id="fracApprox">≈ </span><b id="fracWord"></b> <span id="fracPct" style="color:var(--muted)"></span> <span data-i18n="fracSuf"></span></div>
     </div>
 
     <div>
@@ -417,7 +417,15 @@
     }
   };
 
-  const nearestFrac = f => { const a=dict[lang].fracs; let b=a[0],d=9; for(const x of a){const dd=Math.abs(f-x[0]); if(dd<d){d=dd;b=x;}} return b[1]; };
+  const nearestFrac = f => { const a=dict[lang].fracs; let b=null,d=0.025; for(const x of a){const dd=Math.abs(f-x[0]); if(dd<=d){d=dd;b=x;}} return b? b[1] : ''; };
+  // يعرض سطر الكسر: الكلمة + النسبة عند التطابق، أو النسبة وحدها عند عدم وجود كسر مطابق
+  function showFrac(frac){
+    const w=nearestFrac(frac), pct=Math.round(frac*100);
+    if(w){ $('fracApprox').style.display=''; $('fracWord').textContent=w; $('fracPct').textContent='('+pct+'%)'; }
+    else { $('fracApprox').style.display='none'; $('fracWord').textContent=''; $('fracPct').textContent=pct+'%'; }
+  }
+  // يضبط سطر الكسر بنص ثابت (لحالات خاصة) ويُخفي رمز التقريب
+  function setFracText(t){ $('fracApprox').style.display='none'; $('fracWord').textContent=t; $('fracPct').textContent=''; }
 
   function applyLang(l){
     lang=l;
@@ -466,7 +474,7 @@
 
       if(isFinite(stop) && stop>entry){
         const lockedProfit=(stop-entry)*shares;
-        $('sellShares').textContent='0'; $('fracWord').textContent=L.none; $('fracPct').textContent='';
+        $('sellShares').textContent='0'; setFracText(L.none);
         $('cashFreed').textContent='0'+C; $('profitLocked').textContent=fmt(lockedProfit)+C;
         $('baseAmount').textContent='0'+C; $('remShares').textContent=fmt(shares);
         $('segSecured').style.width='0%'; $('segFree').style.width='100%';
@@ -484,7 +492,7 @@
       let sell=Math.ceil(totalRisk/profitPS);
       if(sell>shares){
         const covered=shares*profitPS;
-        $('sellShares').textContent='—'; $('fracWord').textContent='—'; $('fracPct').textContent='';
+        $('sellShares').textContent='—'; setFracText('—');
         $('cashFreed').textContent='—'; $('profitLocked').textContent='—'; $('remShares').textContent='—';
         $('segSecured').style.width='100%'; $('segFree').style.width='0%';
         $('segSecNum').textContent=fmt(shares); $('segFreeNum').textContent='0';
@@ -492,7 +500,7 @@
         return;
       }
       const rem=shares-sell, frac=sell/shares;
-      $('sellShares').textContent=fmt(sell); $('fracWord').textContent=nearestFrac(frac); $('fracPct').textContent='('+Math.round(frac*100)+'%)';
+      $('sellShares').textContent=fmt(sell); showFrac(frac);
       $('cashFreed').textContent=fmt(sell*price)+C; $('profitLocked').textContent=fmt(sell*profitPS)+C; $('remShares').textContent=fmt(rem);
       $('segSecured').style.width=Math.round(frac*100)+'%'; $('segFree').style.width=(100-Math.round(frac*100))+'%';
       $('segSecNum').textContent=fmt(sell); $('segFreeNum').textContent=fmt(rem);
@@ -508,7 +516,7 @@
       $('capFormula').textContent='1 ÷ (1 + '+(gainPct/100).toFixed(2)+') = '+Math.round(100/(1+gainPct/100))+'%';
 
       const sell=Math.ceil(shares*entry/price), rem=shares-sell, frac=sell/shares;
-      $('sellShares').textContent=fmt(sell); $('fracWord').textContent=nearestFrac(frac); $('fracPct').textContent='('+Math.round(frac*100)+'%)';
+      $('sellShares').textContent=fmt(sell); showFrac(frac);
       $('cashFreed').textContent=fmt(sell*price)+C; $('profitLocked').textContent=fmt(sell*profitPS)+C;
       $('baseAmount').textContent=fmt(originalCost)+C; $('remShares').textContent=fmt(rem);
       $('segSecured').style.width=Math.round(frac*100)+'%'; $('segFree').style.width=(100-Math.round(frac*100))+'%';
