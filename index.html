@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>حاسبة المركز المجاني · Free Position Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1521; --bg-grad:#0a1019;
+    --surface:#141f2e; --surface-2:#1a2738;
+    --line:#26354a; --line-soft:#1e2c3e;
+    --text:#e9eef6; --muted:#8093a9; --muted-2:#5d6f86;
+    --gold:#f2b138; --gold-soft:#3a2f15;
+    --steel:#46c2b8; --steel-soft:#0f3330;
+    --risk:#e8565b; --risk-soft:#3a1c1f;
+    --ok:#4fd08a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;
+    background:
+      radial-gradient(900px 500px at 85% -10%, #16263c 0%, transparent 60%),
+      radial-gradient(700px 600px at -5% 110%, #1a1530 0%, transparent 55%),
+      linear-gradient(180deg,var(--bg) 0%,var(--bg-grad) 100%);
+    background-attachment:fixed; color:var(--text);
+    min-height:100vh; line-height:1.6; padding:18px 16px 56px;
+  }
+  .wrap{max-width:760px;margin:0 auto}
+  .mono{font-family:'IBM Plex Mono',monospace;font-feature-settings:"tnum";letter-spacing:-.01em}
+
+  .topbar{display:flex;justify-content:flex-end;margin-bottom:6px}
+  .langBtn{background:var(--surface-2);border:1px solid var(--line);color:var(--text);font-family:inherit;
+    font-size:13px;font-weight:600;padding:7px 16px;border-radius:999px;cursor:pointer;transition:all .18s}
+  .langBtn:hover{border-color:var(--steel);color:var(--steel)}
+  .langBtn:focus-visible{outline:2px solid var(--steel);outline-offset:2px}
+
+  header{margin:6px 2px 24px}
+  .kicker{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:600;letter-spacing:.08em;
+    color:var(--gold);text-transform:uppercase;border:1px solid var(--gold-soft);
+    background:rgba(242,177,56,.06);padding:5px 12px;border-radius:999px;margin-bottom:14px;}
+  .kicker .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold)}
+  h1{font-size:30px;font-weight:700;line-height:1.25;letter-spacing:-.01em}
+  h1 b{color:var(--gold)}
+  .sub{color:var(--muted);font-size:15px;margin-top:10px;max-width:56ch}
+
+  .card{background:linear-gradient(180deg,var(--surface) 0%,var(--bg) 130%);
+    border:1px solid var(--line-soft);border-radius:18px;padding:22px;margin-bottom:18px;
+    box-shadow:0 1px 0 rgba(255,255,255,.03) inset, 0 24px 50px -28px rgba(0,0,0,.7);}
+  .card-title{font-size:12px;font-weight:600;letter-spacing:.07em;color:var(--muted-2);
+    text-transform:uppercase;margin-bottom:18px;display:flex;align-items:center;gap:10px;}
+  .card-title::before{content:"";flex:0 0 18px;height:1px;background:var(--line)}
+  .card-title::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  .modeToggle{display:flex;gap:6px;background:var(--bg);border:1px solid var(--line);
+    border-radius:13px;padding:5px;margin-bottom:22px}
+  .modeBtn{flex:1;border:none;background:transparent;color:var(--muted);cursor:pointer;
+    padding:11px 8px;border-radius:9px;font-family:inherit;font-size:14.5px;font-weight:600;
+    display:flex;flex-direction:column;align-items:center;gap:2px;transition:all .2s;line-height:1.3}
+  .modeBtn span{font-size:11px;font-weight:500;color:var(--muted-2);transition:color .2s}
+  .modeBtn:hover{color:var(--text)}
+  .modeBtn.active{background:var(--surface-2);box-shadow:0 1px 0 rgba(255,255,255,.04) inset}
+  .modeBtn.active[data-mode="risk"], .modeBtn.active[data-mode="risk"] span{color:var(--steel)}
+  .modeBtn.active[data-mode="capital"], .modeBtn.active[data-mode="capital"] span{color:var(--gold)}
+  .modeBtn:focus-visible{outline:2px solid var(--steel);outline-offset:2px}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .field label{display:block;font-size:13px;color:var(--muted);margin-bottom:7px;font-weight:500}
+  .field label .tag{font-size:11px;font-weight:600;padding:1px 7px;border-radius:5px;margin-inline-start:6px}
+  .tag.risk{color:var(--risk);background:var(--risk-soft)}
+  .tag.gold{color:var(--gold);background:var(--gold-soft)}
+  .inp{width:100%;background:var(--bg);border:1px solid var(--line);color:var(--text);border-radius:11px;
+    padding:13px 14px;font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:500;
+    text-align:left;direction:ltr;transition:border-color .15s,box-shadow .15s,opacity .2s;}
+  .inp:focus{outline:none;border-color:var(--steel);box-shadow:0 0 0 3px rgba(70,194,184,.14)}
+  .inp.bad{border-color:var(--risk);box-shadow:0 0 0 3px rgba(232,86,91,.14)}
+  .inp.dim{opacity:.4}
+  .span2{grid-column:1 / -1}
+  .cur-row{display:flex;align-items:center;gap:10px}
+  .cur-row .inp{flex:1}
+  .cur-inp{width:78px;flex:0 0 78px;text-align:center;direction:ltr;font-family:'IBM Plex Sans Arabic',sans-serif;font-size:14px}
+  .stop-note{font-size:11.5px;color:var(--gold);margin-top:6px;display:none}
+  .stop-note.show{display:block}
+
+  .verdict{text-align:center;padding:6px 0 20px}
+  .verdict .lead{font-size:14px;color:var(--muted);margin-bottom:6px;transition:color .2s}
+  .sell-num{font-size:60px;font-weight:700;line-height:1;color:var(--gold);letter-spacing:-.02em}
+  .sell-num .u{font-size:20px;color:var(--muted);font-weight:500;margin-inline-start:8px;font-family:'IBM Plex Sans Arabic',sans-serif}
+  .frac{display:inline-block;margin-top:12px;font-size:15px;color:var(--text);background:var(--surface-2);
+    border:1px solid var(--line);padding:6px 16px;border-radius:999px}
+  .frac b{color:var(--gold)}
+
+  .bar{display:flex;height:54px;border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--bg)}
+  .seg{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+    transition:width .55s cubic-bezier(.22,1,.36,1);overflow:hidden;min-width:0}
+  .seg .s-num{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:16px;white-space:nowrap}
+  .seg .s-lab{font-size:10.5px;white-space:nowrap;opacity:.9}
+  .seg.secured{background:linear-gradient(180deg,#1c4a47,#143c3a);color:#bdf0ea;box-shadow:inset 0 0 0 1px rgba(70,194,184,.25)}
+  .seg.free{background:linear-gradient(180deg,#4a3a12,#3a2d0d);color:#ffdd95;box-shadow:inset 0 0 0 1px rgba(242,177,56,.3)}
+  .legend{display:flex;gap:18px;justify-content:center;margin-top:14px;font-size:12.5px;color:var(--muted);flex-wrap:wrap}
+  .legend i{width:9px;height:9px;border-radius:3px;display:inline-block;margin-inline-end:6px;vertical-align:middle}
+  .legend .ls{background:var(--steel)} .legend .lf{background:var(--gold)}
+
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line-soft);
+    border:1px solid var(--line-soft);border-radius:14px;overflow:hidden;margin-top:20px}
+  .stat{background:var(--surface);padding:15px 16px}
+  .stat .k{font-size:12px;color:var(--muted);margin-bottom:5px}
+  .stat .v{font-family:'IBM Plex Mono',monospace;font-size:21px;font-weight:600}
+  .v.gold{color:var(--gold)} .v.steel{color:var(--steel)} .v.risk{color:var(--risk)}
+
+  .insight{margin-top:20px}
+  .rhead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px}
+  .rhead .rk{font-size:13px;color:var(--muted)}
+  .rhead .rv{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:20px;color:var(--text)}
+  .rhead .rv b{color:var(--gold)}
+  .track{height:9px;background:var(--bg);border:1px solid var(--line);border-radius:999px;overflow:hidden;position:relative}
+  .track .fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--risk),var(--gold));transition:width .55s cubic-bezier(.22,1,.36,1)}
+  .track .mark{position:absolute;top:-4px;width:2px;height:17px;background:var(--steel)}
+  .rscale{display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted-2);margin-top:6px}
+  .rscale span:last-child{font-family:'IBM Plex Sans Arabic',sans-serif}
+
+  .banner{display:flex;gap:13px;align-items:flex-start;border-radius:13px;padding:15px 16px;margin-top:6px;font-size:14.5px;line-height:1.65}
+  .banner .ic{flex:0 0 30px;height:30px;border-radius:9px;display:grid;place-items:center;font-size:16px;margin-top:1px}
+  .banner.go{background:rgba(242,177,56,.07);border:1px solid var(--gold-soft)}
+  .banner.go .ic{background:var(--gold-soft);color:var(--gold)}
+  .banner.go b{color:var(--gold)}
+  .banner.warn{background:rgba(232,86,91,.07);border:1px solid var(--risk-soft);color:#f3c0c2}
+  .banner.warn .ic{background:var(--risk-soft);color:var(--risk)}
+  .banner.warn b{color:#ff8488}
+  .banner .mono{color:var(--text)}
+
+  .formula{text-align:center;color:var(--muted);font-size:13.5px;margin-top:18px;padding-top:16px;border-top:1px dashed var(--line)}
+  .formula b{color:var(--steel);font-family:'IBM Plex Mono',monospace;font-weight:600}
+
+  details.explain{background:linear-gradient(180deg,var(--surface) 0%,var(--bg) 130%);
+    border:1px solid var(--line-soft);border-radius:18px;margin-bottom:18px;overflow:hidden;
+    box-shadow:0 1px 0 rgba(255,255,255,.03) inset, 0 24px 50px -28px rgba(0,0,0,.7)}
+  details.explain>summary{list-style:none;cursor:pointer;padding:20px 22px;display:flex;
+    align-items:center;justify-content:space-between;gap:12px;font-size:15.5px;font-weight:600;color:var(--text)}
+  details.explain>summary::-webkit-details-marker{display:none}
+  .sum-r{display:flex;align-items:center;gap:11px}
+  .sum-ic{flex:0 0 32px;height:32px;border-radius:9px;background:var(--gold-soft);color:var(--gold);
+    display:grid;place-items:center;font-size:17px}
+  .chev{color:var(--muted);font-size:13px;transition:transform .25s}
+  details.explain[open] .chev{transform:rotate(180deg)}
+  .ex-body{padding:2px 22px 22px;border-top:1px solid var(--line-soft)}
+  .ex-body h3{font-size:15px;font-weight:700;margin:20px 0 7px;color:var(--text)}
+  .ex-body h3.t-steel{color:var(--steel)} .ex-body h3.t-gold{color:var(--gold)}
+  .ex-body p{font-size:14.5px;color:#c2cedd;line-height:1.75;margin-bottom:6px}
+  .ex-body p.first{margin-top:14px}
+  .ex-body em{color:var(--text);font-style:normal;font-weight:600}
+  .ex-eg{display:block;font-size:13.5px;color:var(--muted);background:var(--bg);border:1px solid var(--line);
+    border-radius:10px;padding:10px 13px;margin-top:8px}
+  .ex-eg b{color:var(--text);font-weight:600}
+  .ex-divider{height:1px;background:var(--line-soft);margin:20px 0 4px}
+
+  footer{text-align:center;color:var(--muted-2);font-size:12px;margin-top:26px;line-height:1.7}
+  .hidden{display:none !important}
+
+  @media (max-width:520px){
+    h1{font-size:25px} .grid{grid-template-columns:1fr}
+    .sell-num{font-size:52px} .stat .v{font-size:19px} .modeBtn{font-size:13.5px}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none !important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar"><button id="langBtn" class="langBtn" type="button">English</button></div>
+
+  <header>
+    <span class="kicker"><span class="dot"></span> <span data-i18n="kicker"></span></span>
+    <h1 data-i18n-html="h1"></h1>
+    <p class="sub" data-i18n="sub"></p>
+  </header>
+
+  <div class="card">
+    <div class="card-title" data-i18n="cardTitle"></div>
+    <div class="grid">
+      <div class="field span2">
+        <label data-i18n="lblShares"></label>
+        <input class="inp" id="shares" type="text" inputmode="decimal" autocomplete="off" value="100">
+      </div>
+      <div class="field">
+        <label data-i18n="lblEntry"></label>
+        <input class="inp" id="entry" type="text" inputmode="decimal" autocomplete="off" value="100">
+      </div>
+      <div class="field">
+        <label data-i18n-html="lblStop"></label>
+        <input class="inp" id="stop" type="text" inputmode="decimal" autocomplete="off" value="93">
+        <div class="stop-note" id="stopNote" data-i18n="stopNote"></div>
+      </div>
+      <div class="field span2">
+        <label data-i18n-html="lblPrice"></label>
+        <div class="cur-row">
+          <input class="inp" id="price" type="text" inputmode="decimal" autocomplete="off" value="130">
+          <input class="inp cur-inp" id="cur" type="text" value="$" aria-label="currency">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="resultCard">
+    <div class="modeToggle" role="tablist">
+      <button class="modeBtn active" data-mode="risk" role="tab" data-i18n-html="modeRisk"></button>
+      <button class="modeBtn" data-mode="capital" role="tab" data-i18n-html="modeCapital"></button>
+    </div>
+
+    <div class="verdict">
+      <div class="lead" id="verdictLead"></div>
+      <div class="sell-num"><span id="sellShares" class="mono">24</span><span class="u" data-i18n="unit"></span></div>
+      <div class="frac">≈ <b id="fracWord"></b> <span id="fracPct" style="color:var(--muted)"></span> <span data-i18n="fracSuf"></span></div>
+    </div>
+
+    <div>
+      <div class="bar">
+        <div class="seg secured" id="segSecured" style="width:24%">
+          <span class="s-num" id="segSecNum">24</span>
+          <span class="s-lab" id="segSecLab"></span>
+        </div>
+        <div class="seg free" id="segFree" style="width:76%">
+          <span class="s-num" id="segFreeNum">76</span>
+          <span class="s-lab" data-i18n="ridesFree"></span>
+        </div>
+      </div>
+      <div class="legend">
+        <span><i class="ls"></i><span id="legSec"></span></span>
+        <span><i class="lf"></i><span data-i18n="legFree"></span></span>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="k" id="k1"></div><div class="v steel mono" id="cashFreed">3,120</div></div>
+      <div class="stat"><div class="k" data-i18n="k2"></div><div class="v gold mono" id="profitLocked">720</div></div>
+      <div class="stat"><div class="k" id="k3"></div><div class="v risk mono" id="baseAmount">700</div></div>
+      <div class="stat"><div class="k" data-i18n="k4"></div><div class="v gold mono" id="remShares">76</div></div>
+    </div>
+
+    <div class="insight" id="meterRisk">
+      <div class="rhead">
+        <span class="rk" data-i18n="mRiskHead"></span>
+        <span class="rv"><b id="rValue">4.3</b> R</span>
+      </div>
+      <div class="track"><div class="fill" id="rFill" style="width:80%"></div><div class="mark" style="left:20%"></div></div>
+      <div class="rscale"><span data-i18n="mRiskScaleL"></span><span>5R+</span></div>
+    </div>
+
+    <div class="insight hidden" id="meterCapital">
+      <div class="rhead">
+        <span class="rk" data-i18n="mCapHead"></span>
+        <span class="rv"><b id="gainPctVal">30%</b></span>
+      </div>
+      <div class="track"><div class="fill" id="capFill" style="width:60%;background:linear-gradient(90deg,var(--steel),var(--gold))"></div></div>
+      <div class="rscale"><span id="capFormula" class="mono"></span><span data-i18n="mCapScaleR"></span></div>
+    </div>
+  </div>
+
+  <div class="card" style="padding:0;border:none;background:none;box-shadow:none;margin-bottom:0">
+    <div class="banner go" id="bannerGo"><div class="ic" id="bannerIc">↑</div><div id="bannerText"></div></div>
+    <div class="banner warn hidden" id="bannerWarn"><div class="ic">!</div><div id="warnText"></div></div>
+    <div class="formula" id="formulaText"></div>
+  </div>
+
+  <details class="explain">
+    <summary>
+      <span class="sum-r"><span class="sum-ic">?</span> <span data-i18n="exSummary"></span></span>
+      <span class="chev">▼</span>
+    </summary>
+    <div class="ex-body">
+      <h3 class="first" data-i18n="exH1"></h3>
+      <p data-i18n="exP1"></p>
+      <div class="ex-divider"></div>
+      <h3 class="t-steel" data-i18n="exH2"></h3>
+      <p data-i18n-html="exP2"></p>
+      <span class="ex-eg" data-i18n-html="exEg1"></span>
+      <h3 class="t-gold" data-i18n="exH3"></h3>
+      <p data-i18n-html="exP3"></p>
+      <span class="ex-eg" data-i18n-html="exEg2"></span>
+      <div class="ex-divider"></div>
+      <h3 data-i18n="exH4"></h3>
+      <p data-i18n="exP4"></p>
+    </div>
+  </details>
+
+  <footer data-i18n="footer"></footer>
+
+</div>
+
+<script>
+(function(){
+  const $ = id => document.getElementById(id);
+  let mode = 'risk';
+  let lang = 'ar';
+
+  const fmt = n => isFinite(n) ? (Math.round(n*100)/100).toLocaleString('en-US',{maximumFractionDigits:2}) : '—';
+  const numIds=['shares','entry','stop','price'];
+  function normDigits(s){
+    if(!s) return s;
+    return s
+      .replace(/[\u0660-\u0669]/g, d => d.charCodeAt(0)-0x0660)
+      .replace(/[\u06F0-\u06F9]/g, d => d.charCodeAt(0)-0x06F0)
+      .replace(/[\u066B\u066C\u060C,]/g, '.')
+      .replace(/[^0-9.\-]/g, '');
+  }
+  const numVal = id => parseFloat(normDigits($(id).value));
+
+  const dict = {
+    ar: {
+      _dir:'rtl', _btn:'English',
+      kicker:'المركز المجاني · house money',
+      h1:'حاسبة <b>المركز المجاني</b>',
+      sub:'بِع شريحة في القوة، وحرّر مركزك بطريقتين: استرداد مخاطرتك أو استرداد كامل رأس مالك نقداً. بدّل بينهما وقارن.',
+      cardTitle:'بيانات الصفقة',
+      lblShares:'عدد الأسهم في المركز',
+      lblEntry:'سعر الدخول',
+      lblStop:'وقف الخسارة <span class="tag risk">مخاطرة</span>',
+      lblPrice:'السعر الحالي <span class="tag gold">ربح</span>',
+      stopNote:'غير مستخدم في وضع استرداد رأس المال',
+      modeRisk:'استرداد المخاطرة<span>1÷R</span>',
+      modeCapital:'استرداد رأس المال<span>سحب الكاش · 1÷(1+س)</span>',
+      unit:'سهم',
+      fracSuf:'من المركز',
+      ridesFree:'يركب مجاناً',
+      legFree:'الباقي بلا سقف — يُدار بالمتوسط',
+      k2:'الربح المُقفل',
+      k4:'الأسهم الباقية تركب',
+      mRiskHead:'ربحك الحالي مقاساً بالمخاطرة',
+      mRiskScaleL:'1R (تعادل المخاطرة)',
+      mCapHead:'نسبة الارتفاع (س)',
+      mCapScaleR:'كلما زاد الارتفاع، بِعت أقل',
+      exSummary:'شرح مبسّط للطريقتين',
+      exH1:'ما معنى «المركز المجاني»؟',
+      exP1:'هو أن تبيع جزءاً من أسهمك بعد أن تربح، بحيث يصير الجزء الباقي بلا أي خطر حقيقي على مبلغك الأصلي. الفكرة تريحك نفسياً فتقدر تحمل السهم الرابح مدة أطول بدل ما تبيعه بدري خوفاً.',
+      exH2:'الطريقة الأولى — استرداد المخاطرة',
+      exP2:'هنا تبيع شريحة صغيرة تكفي لتغطية <em>خسارتك المحتملة فقط</em> (المسافة بين سعر دخولك ووقف الخسارة)، ثم ترفع وقف الخسارة إلى سعر الدخول. النتيجة: لو نزل السهم، تخرج بلا خسارة؛ ولو صعد، معك كمية كبيرة تستفيد منها. تبيع أقل وتُبقي أكثر — مناسبة لمن يطارد الرابح الكبير.',
+      exEg1:'<b>مثال:</b> اشتريت بـ١٠٠ ووقفك عند ٩٣ (تخاطر بـ٧٪)، وصعد السهم ٣٠٪ ← تبيع نحو ربع الكمية فقط، والباقي يركب.',
+      exH3:'الطريقة الثانية — استرداد رأس المال',
+      exP3:'هنا تبيع كمية أكبر تكفي لسحب <em>كامل مبلغك الأصلي</em> من الصفقة نقداً. بمجرد ما يرجع رأس مالك إلى حسابك، أي شيء يتبقى يصير ربحاً صافياً مئة بالمئة. أكثر أماناً وراحة للبال، لكنك تبيع كمية أكبر فيبقى معك أسهم أقل.',
+      exEg2:'<b>مثال:</b> اشتريت بـ١٠٠ وصعد السهم ٥٠٪ ← تبيع نحو ثلثي الكمية لتسحب كامل مبلغك، والثلث الباقي ربح خالص.',
+      exH4:'أيهما أختار؟',
+      exP4:'استرداد المخاطرة يُبقيك ثقيلاً في السهم القوي ويعتمد على انضباط وقف الخسارة — أنسب لأسلوب الزخم. استرداد رأس المال يسحب مبلغك مبكراً ويمنحك أماناً أكبر — أنسب لمن يفضّل راحة البال. ليست واحدة صح والأخرى خطأ، بل تختلف حسب هدفك ونفسيتك في الصفقة.',
+      footer:'محتوى تعليمي عن المنهجية وليس توصية مالية. تأكّد دائماً من أرقام صفقتك بنفسك.',
+      fracs:[[1/6,'السدس'],[1/5,'الخُمس'],[1/4,'الربع'],[1/3,'الثلث'],[2/5,'الخُمسين'],[1/2,'النصف'],[3/5,'ثلاثة أخماس'],[2/3,'الثلثين'],[3/4,'ثلاثة أرباع'],[4/5,'أربعة أخماس']],
+      none:'لا شيء',
+      verdictRisk:'تبيع الآن لتغطية مخاطرتك بالكامل',
+      verdictCapital:'تبيع الآن لاسترداد كامل رأس مالك',
+      k1Risk:'الكاش المُحرَّر من البيع', k1Capital:'الكاش المُسترَد نقداً',
+      k3Risk:'المخاطرة الأصلية', k3Capital:'تكلفة المركز الأصلية',
+      segSecRisk:'يغطّي المخاطرة', segSecCapital:'يسترد رأس المال',
+      legSecRisk:'الشريحة المباعة تُغطّي المخاطرة بالكامل', legSecCapital:'الشريحة المباعة تُعيد كامل رأس مالك نقداً',
+      formulaRisk:'نسبة البيع = <b>المخاطرة ÷ الربح</b> &nbsp;·&nbsp; أو ببساطة: بِع <b>1 ÷ R</b>',
+      formulaCapital:'نسبة البيع = <b>1 ÷ (1 + س)</b> &nbsp;·&nbsp; س = نسبة الارتفاع',
+      warnInvalid:'أدخل بيانات صفقة صحيحة لعرض القرار.',
+      warnNoProfit:'<b>المركز ليس في ربح بعد.</b> فكرة المركز المجاني تبدأ فقط عندما يتجاوز السعر الحالي سعر دخولك.',
+      needStopBelow:'أدخل وقف خسارة <b>أقل من سعر الدخول</b> لحساب وضع استرداد المخاطرة.',
+      freedAlready:(s,lp)=>`ستوبك (${s}) <b>فوق سعر دخولك</b> — المركز محرَّر مسبقاً ولا خطر على رأس مالك. لو ضُربت تخرج برِبح مضمون ≈ <span class="mono">${lp}</span>. شغلك الآن <b>رفع الستوب لا البيع</b>.`,
+      cantFree:(R,cov,tot)=>`الربح الحالي (<b>${R}R</b>) أصغر من المخاطرة، فلا يمكن تحرير المركز بالكامل بعد. حتى بيع كل الأسهم يغطّي ${cov} من أصل ${tot}. الأفضل: ارفع الستوب لتقليل المخاطرة وانتظر ربحاً ≥ 1R.`,
+      goRisk:(e)=>`بعد البيع، <b>ارفع وقف الخسارة على الباقي إلى نقطة الدخول</b> <span class="mono">(${e})</span> أو أعلى. هنا فقط تصبح كلمة «مجاني» صادقة فعلياً، وليس على الورق.`,
+      goCapital:(c)=>`استرددت <b>كامل رأس مالك نقداً</b> (${c}) — الباقي ربح صافٍ يركب بلا أي مبلغ من جيبك فيه. (يُفضّل أيضاً رفع الستوب لحماية المكسب.)`
+    },
+    en: {
+      _dir:'ltr', _btn:'العربية',
+      kicker:'Free Position · house money',
+      h1:'Free Position <b>Calculator</b>',
+      sub:'Sell a slice into strength and free your position two ways: recover your risk, or recover your full capital in cash. Switch between them and compare.',
+      cardTitle:'Trade Details',
+      lblShares:'Shares in position',
+      lblEntry:'Entry price',
+      lblStop:'Stop loss <span class="tag risk">risk</span>',
+      lblPrice:'Current price <span class="tag gold">profit</span>',
+      stopNote:'Not used in capital-recovery mode',
+      modeRisk:'Recover Risk<span>1÷R</span>',
+      modeCapital:'Recover Capital<span>cash out · 1÷(1+x)</span>',
+      unit:'shares',
+      fracSuf:'of position',
+      ridesFree:'rides free',
+      legFree:'The rest runs uncapped — managed by a moving average',
+      k2:'Locked profit',
+      k4:'Shares still riding',
+      mRiskHead:'Your gain measured in risk',
+      mRiskScaleL:'1R (covers risk)',
+      mCapHead:'Gain percent (x)',
+      mCapScaleR:'The higher the gain, the less you sell',
+      exSummary:'Simple explanation of both methods',
+      exH1:'What is a “free position”?',
+      exP1:'It means selling part of your shares after you are in profit, so the remaining part carries no real risk to your original capital. It eases you psychologically, so you can hold the winner longer instead of selling early out of fear.',
+      exH2:'Method 1 — Recover Risk',
+      exP2:'Here you sell a small slice, just enough to cover <em>only your potential loss</em> (the distance between your entry and your stop), then you raise the stop to your entry. Result: if the stock drops you exit with no loss; if it rises you still hold a large quantity. You sell less and keep more — suited to chasing the big winner.',
+      exEg1:'<b>Example:</b> You bought at 100 with a stop at 93 (risking 7%), and the stock rose 30% → you sell only about a quarter of the quantity, and the rest rides.',
+      exH3:'Method 2 — Recover Capital',
+      exP3:'Here you sell a larger quantity, enough to pull <em>your entire original capital</em> out of the trade in cash. Once your capital is back in your account, anything left becomes 100% pure profit. Safer and more peace of mind, but you sell more so fewer shares remain.',
+      exEg2:'<b>Example:</b> You bought at 100 and the stock rose 50% → you sell about two thirds of the quantity to pull out your full capital, and the remaining third is pure profit.',
+      exH4:'Which should I choose?',
+      exP4:'Recover Risk keeps you heavy in a strong stock and relies on stop-loss discipline — best for momentum trading. Recover Capital pulls your money out early and gives more safety — best if you prefer peace of mind. Neither is right or wrong; it depends on your goal and your mindset in the trade.',
+      footer:'Educational content about the methodology, not financial advice. Always verify your own trade numbers.',
+      fracs:[[1/6,'a sixth'],[1/5,'a fifth'],[1/4,'a quarter'],[1/3,'a third'],[2/5,'two fifths'],[1/2,'half'],[3/5,'three fifths'],[2/3,'two thirds'],[3/4,'three quarters'],[4/5,'four fifths']],
+      none:'none',
+      verdictRisk:'Sell now to fully cover your risk',
+      verdictCapital:'Sell now to recover your full capital',
+      k1Risk:'Cash freed from the sale', k1Capital:'Cash recovered',
+      k3Risk:'Original risk', k3Capital:'Original position cost',
+      segSecRisk:'covers risk', segSecCapital:'recovers capital',
+      legSecRisk:'The sold slice fully covers the risk', legSecCapital:'The sold slice returns your full capital in cash',
+      formulaRisk:'Sell fraction = <b>risk ÷ gain</b> &nbsp;·&nbsp; or simply: sell <b>1 ÷ R</b>',
+      formulaCapital:'Sell fraction = <b>1 ÷ (1 + x)</b> &nbsp;·&nbsp; x = gain percent',
+      warnInvalid:'Enter valid trade data to see the result.',
+      warnNoProfit:'<b>The position is not in profit yet.</b> The free-position idea only starts once the current price rises above your entry.',
+      needStopBelow:'Enter a stop loss <b>below the entry price</b> to compute risk-recovery mode.',
+      freedAlready:(s,lp)=>`Your stop (${s}) is <b>above your entry</b> — the position is already free with no risk to your capital. If stopped out you exit with a guaranteed profit ≈ <span class="mono">${lp}</span>. Your job now is to <b>raise the stop, not sell</b>.`,
+      cantFree:(R,cov,tot)=>`Current gain (<b>${R}R</b>) is smaller than the risk, so the position cannot be fully freed yet. Even selling all shares covers only ${cov} of ${tot}. Better: raise the stop to cut risk and wait for a gain ≥ 1R.`,
+      goRisk:(e)=>`After selling, <b>raise the stop on the rest to your entry</b> <span class="mono">(${e})</span> or higher. Only then is “free” truly real, not just on paper.`,
+      goCapital:(c)=>`You recovered your <b>full capital in cash</b> (${c}) — the rest is pure profit riding with none of your own money in it. (Still best to raise the stop to protect the gain.)`
+    }
+  };
+
+  const nearestFrac = f => { const a=dict[lang].fracs; let b=a[0],d=9; for(const x of a){const dd=Math.abs(f-x[0]); if(dd<d){d=dd;b=x;}} return b[1]; };
+
+  function applyLang(l){
+    lang=l;
+    const L=dict[l];
+    document.documentElement.lang=l;
+    document.documentElement.dir=L._dir;
+    $('langBtn').textContent=L._btn;
+    document.querySelectorAll('[data-i18n]').forEach(el=>{ el.textContent=L[el.dataset.i18n]; });
+    document.querySelectorAll('[data-i18n-html]').forEach(el=>{ el.innerHTML=L[el.dataset.i18nHtml]; });
+    // إعادة ضبط أزرار الوضع النشط (تمت إعادة كتابتها أعلاه)
+    document.querySelectorAll('.modeBtn').forEach(b=>b.classList.toggle('active', b.dataset.mode===mode));
+    calc();
+  }
+
+  function showWarn(html){ $('bannerWarn').classList.remove('hidden'); $('bannerGo').classList.add('hidden'); $('warnText').innerHTML=html; }
+  function showGo(ic,html){ $('bannerWarn').classList.add('hidden'); $('bannerGo').classList.remove('hidden'); $('bannerIc').textContent=ic; $('bannerText').innerHTML=html; }
+
+  function setMode(m){
+    mode=m;
+    document.querySelectorAll('.modeBtn').forEach(b=>b.classList.toggle('active', b.dataset.mode===m));
+    $('meterRisk').classList.toggle('hidden', m!=='risk');
+    $('meterCapital').classList.toggle('hidden', m!=='capital');
+    $('stopNote').classList.toggle('show', m==='capital');
+    $('stop').classList.toggle('dim', m==='capital');
+    calc();
+  }
+
+  function calc(){
+    const L=dict[lang];
+    const shares=numVal('shares'), entry=numVal('entry'), stop=numVal('stop'), price=numVal('price'),
+          cur=($('cur').value||'').trim(), C = cur? ' '+cur : '';
+
+    $('price').classList.toggle('bad', isFinite(price)&&isFinite(entry)&&price<=entry);
+    $('stop').classList.toggle('bad', mode==='risk'&&isFinite(stop)&&isFinite(entry)&&stop>=entry&&!(stop>entry));
+
+    if(!(shares>0 && entry>0 && isFinite(price))){ $('resultCard').style.opacity=.5; showWarn(L.warnInvalid); return; }
+    if(price<=entry){ $('resultCard').style.opacity=.5; showWarn(L.warnNoProfit); return; }
+    $('resultCard').style.opacity=1;
+
+    const profitPS=price-entry, gainPct=profitPS/entry*100, originalCost=shares*entry;
+
+    if(mode==='risk'){
+      $('k1').textContent=L.k1Risk; $('k3').textContent=L.k3Risk;
+      $('segSecLab').textContent=L.segSecRisk; $('legSec').textContent=L.legSecRisk;
+      $('verdictLead').textContent=L.verdictRisk; $('formulaText').innerHTML=L.formulaRisk;
+
+      if(isFinite(stop) && stop>entry){
+        const lockedProfit=(stop-entry)*shares;
+        $('sellShares').textContent='0'; $('fracWord').textContent=L.none; $('fracPct').textContent='';
+        $('cashFreed').textContent='0'+C; $('profitLocked').textContent=fmt(lockedProfit)+C;
+        $('baseAmount').textContent='0'+C; $('remShares').textContent=fmt(shares);
+        $('segSecured').style.width='0%'; $('segFree').style.width='100%';
+        $('segSecNum').textContent='0'; $('segFreeNum').textContent=fmt(shares);
+        $('rFill').style.width='100%'; $('rValue').textContent='∞';
+        showGo('✓', L.freedAlready(fmt(stop)+C, fmt(lockedProfit)+C));
+        return;
+      }
+      if(!(isFinite(stop) && stop<entry)){ showWarn(L.needStopBelow); return; }
+
+      const riskPS=entry-stop, totalRisk=riskPS*shares, R=profitPS/riskPS;
+      $('rValue').textContent=R.toFixed(1); $('baseAmount').textContent=fmt(totalRisk)+C;
+      $('rFill').style.width=Math.max(0,Math.min(100,(R/5)*100))+'%';
+
+      let sell=Math.ceil(totalRisk/profitPS);
+      if(sell>shares){
+        const covered=shares*profitPS;
+        $('sellShares').textContent='—'; $('fracWord').textContent='—'; $('fracPct').textContent='';
+        $('cashFreed').textContent='—'; $('profitLocked').textContent='—'; $('remShares').textContent='—';
+        $('segSecured').style.width='100%'; $('segFree').style.width='0%';
+        $('segSecNum').textContent=fmt(shares); $('segFreeNum').textContent='0';
+        showWarn(L.cantFree(R.toFixed(2), fmt(covered)+C, fmt(totalRisk)+C));
+        return;
+      }
+      const rem=shares-sell, frac=sell/shares;
+      $('sellShares').textContent=fmt(sell); $('fracWord').textContent=nearestFrac(frac); $('fracPct').textContent='('+Math.round(frac*100)+'%)';
+      $('cashFreed').textContent=fmt(sell*price)+C; $('profitLocked').textContent=fmt(sell*profitPS)+C; $('remShares').textContent=fmt(rem);
+      $('segSecured').style.width=Math.round(frac*100)+'%'; $('segFree').style.width=(100-Math.round(frac*100))+'%';
+      $('segSecNum').textContent=fmt(sell); $('segFreeNum').textContent=fmt(rem);
+      showGo('↑', L.goRisk(fmt(entry)+C));
+
+    } else {
+      $('k1').textContent=L.k1Capital; $('k3').textContent=L.k3Capital;
+      $('segSecLab').textContent=L.segSecCapital; $('legSec').textContent=L.legSecCapital;
+      $('verdictLead').textContent=L.verdictCapital; $('formulaText').innerHTML=L.formulaCapital;
+
+      $('gainPctVal').textContent=Math.round(gainPct)+'%';
+      $('capFill').style.width=Math.max(8,Math.min(100,100/(1+gainPct/100)))+'%';
+      $('capFormula').textContent='1 ÷ (1 + '+(gainPct/100).toFixed(2)+') = '+Math.round(100/(1+gainPct/100))+'%';
+
+      const sell=Math.ceil(shares*entry/price), rem=shares-sell, frac=sell/shares;
+      $('sellShares').textContent=fmt(sell); $('fracWord').textContent=nearestFrac(frac); $('fracPct').textContent='('+Math.round(frac*100)+'%)';
+      $('cashFreed').textContent=fmt(sell*price)+C; $('profitLocked').textContent=fmt(sell*profitPS)+C;
+      $('baseAmount').textContent=fmt(originalCost)+C; $('remShares').textContent=fmt(rem);
+      $('segSecured').style.width=Math.round(frac*100)+'%'; $('segFree').style.width=(100-Math.round(frac*100))+'%';
+      $('segSecNum').textContent=fmt(sell); $('segFreeNum').textContent=fmt(rem);
+      showGo('$', L.goCapital(fmt(originalCost)+C));
+    }
+  }
+
+  function liveConvert(el){
+    const n = normDigits(el.value);
+    if(n === el.value) return;
+    const caret = normDigits(el.value.slice(0, el.selectionStart ?? el.value.length)).length;
+    el.value = n;
+    try{ el.setSelectionRange(caret, caret); }catch(e){}
+  }
+  numIds.forEach(id=>{
+    const el=$(id);
+    const handle = ()=>{ liveConvert(el); calc(); };
+    el.addEventListener('input', handle);
+    el.addEventListener('keyup', handle);
+    el.addEventListener('compositionend', handle);
+    el.addEventListener('change', handle);
+    el.addEventListener('blur', handle);
+  });
+  $('cur').addEventListener('input',calc);
+  document.querySelectorAll('.modeBtn').forEach(b=>b.addEventListener('click',()=>setMode(b.dataset.mode)));
+  $('langBtn').addEventListener('click',()=>applyLang(lang==='ar'?'en':'ar'));
+
+  applyLang('ar');
+})();
+</script>
+</body>
+</html>
