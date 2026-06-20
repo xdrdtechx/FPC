@@ -138,6 +138,7 @@
 
   .formula{text-align:center;color:var(--muted);font-size:13.5px;margin-top:18px;padding-top:16px;border-top:1px dashed var(--line)}
   .formula b{color:var(--steel);font-family:'IBM Plex Mono',monospace;font-weight:600}
+  .slip-note{text-align:center;color:var(--muted-2);font-size:11.5px;font-style:italic;margin-top:10px;line-height:1.6}
 
   details.explain{background:linear-gradient(180deg,var(--surface) 0%,var(--bg) 130%);
     border:1px solid var(--line-soft);border-radius:18px;margin-bottom:18px;overflow:hidden;
@@ -281,6 +282,7 @@
     <div class="banner go" id="bannerGo"><div class="ic" id="bannerIc">↑</div><div id="bannerText"></div></div>
     <div class="banner warn hidden" id="bannerWarn"><div class="ic">!</div><div id="warnText"></div></div>
     <div class="formula" id="formulaText"></div>
+    <div class="slip-note" data-i18n="slipNote"></div>
   </div>
 
   <details class="explain">
@@ -351,7 +353,7 @@
       _dir:'rtl', _btn:'English',
       kicker:'المركز المجاني · Risk-Free Position',
       h1:'حاسبة <b>المركز المجاني</b>',
-      sub:'حرّر مركزك على مرحلتين: أمّن مخاطرتك أولاً، ثم استرد كامل رأس مالك بعد صعود السهم. اختر المرحلة المناسبة لوضعك الآن.',
+      sub:'هندسة الخروج من المراكز الرابحة على مرحلتين: صَفِّر مخاطرتك الفنية أولاً، ثم حرّر قوتك الشرائية مع إبقاء عائد مفتوح في السوق.',
       cardTitle:'بيانات الصفقة',
       lblShares:'عدد الأسهم في المركز',
       lblEntry:'سعر الدخول',
@@ -372,21 +374,22 @@
       mCapScaleR:'كلما زاد الارتفاع، بِعت أقل',
       exSummary:'شرح مبسّط للمرحلتين',
       exH1:'ما معنى «المركز المجاني»؟',
-      exP1:'هو أن تبيع جزءاً من أسهمك بعد أن تربح، بحيث يصير الجزء الباقي بلا أي خطر حقيقي على مبلغك الأصلي. الفكرة تريحك نفسياً فتقدر تحمل السهم الرابح مدة أطول بدل ما تبيعه بدري خوفاً.',
+      exP1:'نظام رياضي لإدارة المراكز الرابحة عبر التسييل الجزئي المدروس: تبيع شريحة محسوبة فتتحوّل بقية مركزك إلى أصل بعائد مفتوح ومخاطرة فنية مُصفّرة، مما يحمي منحنى نمو محفظتك من أي تراجع. والأثر العملي أنك تحمل السهم الرابح بثقة أطول، بدل الخروج المبكر الذي يُفرّط في أكبر حركاته.',
       exH2:'المرحلة الأولى — استرداد المخاطرة',
-      exP2:'هنا تبيع شريحة صغيرة تكفي لتغطية <em>خسارتك المحتملة فقط</em> (المسافة بين سعر دخولك ووقف الخسارة)، ثم ترفع وقف الخسارة إلى سعر الدخول. النتيجة: لو نزل السهم، تخرج بلا خسارة؛ ولو صعد، معك كمية كبيرة تستفيد منها. تبيع أقل وتُبقي أكثر — مناسبة لمن يطارد الرابح الكبير.',
+      exP2:'حساب الكمية اللازمة لتغطية <em>القيمة المُخاطر بها فقط</em> (المسافة بين سعر الدخول ووقف الخسارة الفني)، مع إلزامية رفع الوقف الفني إلى نقطة الدخول. النتيجة: تصفير المخاطرة الفنية مع الاحتفاظ بالوزن المالي الأكبر للمركز — الإستراتيجية المثلى للاستفادة القصوى من موجات الزخم السعري.',
       exEg1:'<b>مثال:</b> اشتريت بـ١٠٠ ووقفك عند ٩٣ (تخاطر بـ٧٪)، وصعد السهم ٣٠٪ ← تبيع نحو ربع الكمية فقط، والباقي يركب.',
       exH3:'المرحلة الثانية — استرداد رأس المال',
-      exP3:'هنا تبيع كمية أكبر تكفي لسحب <em>كامل مبلغك الأصلي</em> من الصفقة نقداً. بمجرد ما يرجع رأس مالك إلى حسابك، أي شيء يتبقى يصير ربحاً صافياً مئة بالمئة. أكثر أماناً وراحة للبال، لكنك تبيع كمية أكبر فيبقى معك أسهم أقل.',
+      exP3:'حساب الكمية اللازمة لاسترجاع <em>كامل السيولة الأصلية</em> وإعادتها فوراً إلى رصيد المحفظة. الهدف تحرير القوة الشرائية المكبوتة في الأسهم الممتدة سعرياً، لإعادة تدوير الكاش في اقتناص فرص جديدة، مع ترك الأرباح الصافية تنمو بمخاطرة فنية مُصفّرة.',
       exEg2:'<b>مثال:</b> اشتريت بـ١٠٠ وصعد السهم ٥٠٪ ← تبيع نحو ثلثي الكمية لتسحب كامل مبلغك، والثلث الباقي ربح خالص.',
       exH4:'متى أستخدم كل مرحلة؟',
       exP4Intro:'لكل مرحلة دورها ووقتها، وتختلف حسب أسلوب تداولك وهدفك في كل صفقة:',
-      exLiRisk:'<b>استرداد المخاطرة:</b> يُبقيك ثقيلاً بكامل وزنك تقريباً في السهم القوي، ويعتمد على انضباطك في رفع وقف الخسارة. هو الخيار الأمثل لأسلوب تداول الزخم، وللسهم القائد القوي الذي قد تكتفي فيه بهذه المرحلة وحدها وتبقى فيه ما دام الاتجاه قوياً.',
-      exLiCapital:'<b>استرداد رأس المال:</b> يسحب سيولتك الأصلية مبكراً فيمنحك أعلى درجات الأمان المالي. هو الأنسب لمن يقدّم راحة البال على تعظيم الكمية، وللسهم السريع المتقلّب الذي يُفضّل سحب رأس المال منه مبكراً قبل الانعكاس.',
+      exLiRisk:'<b>استرداد المخاطرة:</b> يُبقيك بكامل وزنك المالي في السهم، ويعتمد على الانضباط في رفع الوقف الفني. الخيار الأمثل لتداول الزخم، وللأسهم القيادية القوية التي يمثّل بقاء الكمية الكبيرة فيها تعظيماً للعائد الإجمالي للمحفظة.',
+      exLiCapital:'<b>استرداد رأس المال:</b> يسحب السيولة الأصلية بالكامل لحماية الحساب من التقلبات الحادة. الأنسب للأسهم سريعة التذبذب، أو حين تريد رفع كفاءة تدوير رأس المال واقتناص فرص بديلة بدل تجميده في سهم ممتد.',
       exP4Sub:'التكامل بين المرحلتين',
-      exP4Body:'في بداية الحركة، تستخدم استرداد المخاطرة لتأمين الصفقة مع الحفاظ على كمية أسهمك كبيرة. ثم بعد أن يحقق السهم طفرة سعرية قوية، تنتقل إلى استرداد رأس المال لسحب مبلغك كاملاً وترك الأرباح الصافية تنمو وحدها في السوق أطول مدة ممكنة. المرحلة الثانية مكمّلة للمرحلة الأولى، وقد تكتفي بالأولى وحدها في سهم قائد لا تريد تخفيف وزنك فيه.',
-      exP4Close:'والخلاصة أن المسألة ليست أيّ مرحلة تختار، بل متى تستخدم كلاً منهما.',
+      exP4Body:'تبدأ بـ«استرداد المخاطرة» عند اختراق السهم لتأمين الصفقة وحفظ الوزن الثقيل، ومع امتداد الصعود ينقلك «استرداد رأس المال» إلى تحرير السيولة وحماية منحنى نمو المحفظة من الانعكاسات المفاجئة. المنظومة قائمة على التكامل، فتمنحك مرونة المفاضلة بين حجم المركز وسرعة تدوير الكاش بحسب سلوك السهم.',
+      exP4Close:'المسألة ليست أيّ مرحلة تختار، بل متى تستخدم كلاً منهما.',
       footer:'محتوى تعليمي عن المنهجية وليس توصية مالية. تأكّد دائماً من أرقام صفقتك بنفسك.',
+      slipNote:'ملاحظة فنية: الحسابات تفترض تنفيذاً دقيقاً عند الأسعار المُدخلة دون انزلاق سعري.',
       cheatSummary:'بطاقة الحساب اليدوي السريع',cheatHint:'اضغط مطوّلاً على الصورة لحفظها في جوالك',
       fracs:[[1/6,'السدس'],[1/5,'الخُمس'],[1/4,'الربع'],[1/3,'الثلث'],[2/5,'الخُمسين'],[1/2,'النصف'],[3/5,'ثلاثة أخماس'],[2/3,'الثلثين'],[3/4,'ثلاثة أرباع'],[4/5,'أربعة أخماس']],
       none:'لا شيء',
@@ -410,7 +413,7 @@
       _dir:'ltr', _btn:'العربية',
       kicker:'Free Position · Risk-Free',
       h1:'Free Position <b>Calculator</b>',
-      sub:'Free your position in two stages: secure your risk first, then recover your full capital after the stock rises. Pick the stage that fits where you are now.',
+      sub:'Engineering your exit from winning positions in two stages: neutralize your technical risk first, then free your buying power while keeping an open return in the market.',
       cardTitle:'Trade Details',
       lblShares:'Shares in position',
       lblEntry:'Entry price',
@@ -431,21 +434,22 @@
       mCapScaleR:'The higher the gain, the less you sell',
       exSummary:'Simple explanation of both stages',
       exH1:'What is a “free position”?',
-      exP1:'It means selling part of your shares after you are in profit, so the remaining part carries no real risk to your original capital. It eases you psychologically, so you can hold the winner longer instead of selling early out of fear.',
+      exP1:'A mathematical system for managing winning positions through calculated partial selling: you sell a measured slice so the rest of your position becomes an asset with open upside and neutralized technical risk, protecting your portfolio growth curve from any drawdown. In practice you hold the winner with more confidence, instead of the early exit that gives up its largest moves.',
       exH2:'Stage 1 — Recover Risk',
-      exP2:'Here you sell a small slice, just enough to cover <em>only your potential loss</em> (the distance between your entry and your stop), then you raise the stop to your entry. Result: if the stock drops you exit with no loss; if it rises you still hold a large quantity. You sell less and keep more — suited to chasing the big winner.',
+      exP2:'Calculating the quantity needed to cover <em>only the amount at risk</em> (the distance between entry and the technical stop), with a mandatory move of the stop to the entry point. Result: technical risk is neutralized while you keep the largest financial weight of the position — the optimal strategy to capture the most from price-momentum waves.',
       exEg1:'<b>Example:</b> You bought at 100 with a stop at 93 (risking 7%), and the stock rose 30% → you sell only about a quarter of the quantity, and the rest rides.',
       exH3:'Stage 2 — Recover Capital',
-      exP3:'Here you sell a larger quantity, enough to pull <em>your entire original capital</em> out of the trade in cash. Once your capital is back in your account, anything left becomes 100% pure profit. Safer and more peace of mind, but you sell more so fewer shares remain.',
+      exP3:'Calculating the quantity needed to recover <em>all of your original liquidity</em> and return it immediately to the portfolio balance. The goal is to free the buying power locked in price-extended stocks, recycling cash into hunting new setups, while letting net profit grow with neutralized technical risk.',
       exEg2:'<b>Example:</b> You bought at 100 and the stock rose 50% → you sell about two thirds of the quantity to pull out your full capital, and the remaining third is pure profit.',
       exH4:'When do I use each stage?',
       exP4Intro:'Each stage has its role and its timing, varying with your trading style and your goal in each trade:',
-      exLiRisk:'<b>Recover Risk:</b> keeps you heavy, at nearly full size, in a strong stock and relies on your discipline in raising the stop loss. It is the ideal choice for momentum trading, and for a strong leading stock where you may stop at this stage alone and stay in it as long as the trend holds.',
-      exLiCapital:'<b>Recover Capital:</b> pulls your original cash out early, giving you the highest level of financial safety. It suits those who value peace of mind over maximizing size, and a fast, volatile stock where it is better to pull your capital out early before a reversal.',
+      exLiRisk:'<b>Recover Risk:</b> keeps you at your full financial weight in the stock and relies on discipline in raising the technical stop. The optimal choice for momentum trading, and for strong leading stocks where keeping the large size maximizes the portfolio total return.',
+      exLiCapital:'<b>Recover Capital:</b> pulls all the original liquidity out to protect the account from sharp volatility. Best for fast, volatile stocks, or when you want to raise capital-recycling efficiency and hunt alternative setups instead of tying it up in a price-extended stock.',
       exP4Sub:'How the two stages work together',
-      exP4Body:'Early in the move you use Recover Risk to secure the trade while keeping your share count large. Then, after the stock makes a strong price surge, you move to Recover Capital to pull out your full amount and let the net profit grow on its own in the market for as long as possible. Stage two builds on stage one, and you may stop at the first alone in a leading stock you don\'t want to lighten.',
-      exP4Close:'In short, the question is not which stage to choose, but when to use each.',
+      exP4Body:'You begin with Recover Risk at the stock\'s breakout to secure the trade and preserve the heavy weight; as the rise extends, Recover Capital moves you to freeing liquidity and protecting the portfolio growth curve from sudden reversals. The system is built on integration, giving you the flexibility to trade off position size against cash-recycling speed based on the stock\'s behavior.',
+      exP4Close:'The question is not which stage to choose, but when to use each.',
       footer:'Educational content about the methodology, not financial advice. Always verify your own trade numbers.',
+      slipNote:'Technical note: calculations assume exact fills at the entered prices with no slippage.',
       cheatSummary:'Quick manual-calculation card',cheatHint:'Long-press the image to save it to your phone',
       fracs:[[1/6,'a sixth'],[1/5,'a fifth'],[1/4,'a quarter'],[1/3,'a third'],[2/5,'two fifths'],[1/2,'half'],[3/5,'three fifths'],[2/3,'two thirds'],[3/4,'three quarters'],[4/5,'four fifths']],
       none:'none',
